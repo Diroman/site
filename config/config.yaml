@@ -1,0 +1,16 @@
+Database:
+  Host: ""
+  Port: 0
+  User: ""
+  Password: ""
+  Database: ""
+
+Site:
+  Host: ""
+  Port: 0
+
+Mail:
+  Host: "smtp.gmail.com"
+  Port: "587"
+  Email: ""
+  Password: ""

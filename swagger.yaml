@@ -1,0 +1,1062 @@
+swagger: "2.0"
+info:
+  description: ""
+  version: "1.0.0"
+  title: "Swagger LawBox"
+  contact:
+    email: "roman.dubatov@gmail.com"
+host: "127.0.0.1:8888"
+basePath: "/"
+tags:
+  - name: "auth"
+    description: "Authentication"
+  - name: "user"
+    description: "Operations about user"
+  - name: "post"
+    description: "Action with post"
+  - name: tools
+    description: Other actions
+
+schemes:
+  #  - "https"
+  - "http"
+
+securityDefinitions:
+  Bearer:
+    type: apiKey
+    name: Authorization
+    in: header
+  OauthSecurity:
+    type: oauth2
+    flow: accessCode
+    authorizationUrl: 'https://accounts.google.com/o/oauth2/v2/auth'
+    tokenUrl: 'https://www.googleapis.com/oauth2/v4/token'
+    scopes:
+      admin: Admin scope
+      user: User scope
+
+paths:
+  /api/post/nearest_event:
+    get:
+      tags:
+        - "post"
+      summary: "Nearest post for main page"
+      operationId: "getNearestPost"
+      produces:
+        - "application/json"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/Post"
+        "400":
+          description: "Invalid status value"
+          schema:
+            $ref: "#/definitions/Error"
+        "500":
+          description: "Internal server error"
+          schema:
+            $ref: "#/definitions/Error"
+  /api/post/recommended:
+    post:
+      tags:
+        - "post"
+      summary: "Nearest post for main page"
+      operationId: "getRecommendedPost"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "body"
+          name: "postID"
+          description: "PostID"
+          required: true
+          schema:
+            $ref: "#/definitions/Id"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/PostList"
+        "400":
+          description: "Invalid status value"
+          schema:
+            $ref: "#/definitions/Error"
+        "500":
+          description: "Internal server error"
+          schema:
+            $ref: "#/definitions/Error"
+  /api/post/list:
+    get:
+      tags:
+        - "post"
+      summary: "Popular post for main page"
+      operationId: "getPostList"
+      parameters:
+        - in: "query"
+          name: eventType
+          type: string
+          enum: [ lecture, masterClass, conference, training, webinars ]
+        - in: "query"
+          name: dateFrom
+          type: string
+        - in: "query"
+          name: dateTo
+          type: string
+        - in: "query"
+          name: sortBy
+          type: string
+          enum: [ popularity, date, create_date ]
+        - in: "query"
+          name: order
+          type: string
+          enum: [ asc, desc ]
+        - in: "query"
+          name: limit
+          type: integer
+        - in: "query"
+          name: offset
+          type: integer
+        - in: "query"
+          name: text
+          type: string
+        - in: query
+          name: byTime
+          type: string
+          enum: [ all, new, old ]
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            type: "object"
+            $ref: "#/definitions/PostList"
+        "400":
+          description: "Invalid status value"
+          schema:
+            $ref: "#/definitions/Error"
+        "500":
+          description: "Server error"
+          schema:
+            $ref: "#/definitions/Error"
+  /api/post/{id}:
+    get:
+      summary: Gets a post by ID.
+      operationId: getPostByID
+      tags:
+        - post
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: Post ID
+          type: integer
+          required: true
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: '#/definitions/Post'
+        "400":
+          description: "Bad request"
+          schema:
+            $ref: "#/definitions/Error"
+        "500":
+          description: "Server error"
+          schema:
+            $ref: "#/definitions/Error"
+  /api/post/add:
+    post:
+      tags:
+        - "post"
+      summary: "Add new posts"
+      operationId: "addNewPost"
+      produces:
+        - "application/json"
+      security:
+        - Bearer: [ ]
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "Post"
+          required: true
+          schema:
+            $ref: "#/definitions/Post"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/Id"
+        "400":
+          description: "Bad request"
+          schema:
+            $ref: "#/definitions/Error"
+        "401":
+          description: "not valid token"
+        "403":
+          description: "Forbidden"
+          schema:
+            $ref: "#/definitions/Error"
+        "500":
+          description: "Server error"
+          schema:
+            $ref: "#/definitions/Error"
+  /api/post/delete:
+    post:
+      tags:
+        - "post"
+      summary: "Delete posts"
+      operationId: "deletePost"
+      security:
+        - Bearer: [ ]
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "Id"
+          required: true
+          schema:
+            $ref: "#/definitions/Id"
+      responses:
+        "200":
+          description: "successful operation"
+        "400":
+          description: "Bad request"
+          schema:
+            $ref: "#/definitions/Error"
+        "401":
+          description: "not valid token"
+        "403":
+          description: "Forbidden"
+          schema:
+            $ref: "#/definitions/Error"
+        "500":
+          description: "Server error"
+          schema:
+            $ref: "#/definitions/Error"
+  /api/post/update:
+    post:
+      tags:
+        - "post"
+      summary: "Update posts"
+      operationId: "updatePost"
+      security:
+        - Bearer: [ ]
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "Post"
+          required: true
+          schema:
+            $ref: "#/definitions/Post"
+      responses:
+        "200":
+          description: "successful operation"
+        "400":
+          description: "Bad request"
+          schema:
+            $ref: "#/definitions/Error"
+        "401":
+          description: "not valid token"
+        "403":
+          description: "Forbidden"
+          schema:
+            $ref: "#/definitions/Error"
+        "500":
+          description: "Server error"
+          schema:
+            $ref: "#/definitions/Error"
+  /api/post/{id}/update_link:
+    post:
+      summary: Update link in post.
+      operationId: updateLinkInPost
+      tags:
+        - post
+      produces:
+        - application/json
+      security:
+        - Bearer: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Post ID
+          type: integer
+          required: true
+        - in: "body"
+          name: "link"
+          description: "New youtube link"
+          required: true
+          schema:
+            $ref: "#/definitions/Link"
+      responses:
+        200:
+          description: "successful operation"
+        "400":
+          description: "Bad request"
+          schema:
+            $ref: "#/definitions/Error"
+        "500":
+          description: "Server error"
+          schema:
+            $ref: "#/definitions/Error"
+  /api/post/{id}/in_favorite:
+    get:
+      tags:
+        - "post"
+      summary: "Check post in favorite"
+      operationId: "checkPostInFavorite"
+      produces:
+        - "application/json"
+      parameters:
+        - name: id
+          in: path
+          description: Post ID
+          type: integer
+          required: true
+      security:
+        - Bearer: [ ]
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/Bool"
+        "400":
+          description: "Bad request"
+          schema:
+            $ref: "#/definitions/Error"
+        "401":
+          description: "not valid token"
+          schema:
+            $ref: "#/definitions/Error"
+        "500":
+          description: "Server error"
+          schema:
+            $ref: "#/definitions/Error"
+
+  /api/post/{id}/materials:
+    get:
+      summary: Gets a material by postID.
+      operationId: getMaterialByPostID
+      tags:
+        - post
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: Post ID
+          type: integer
+          required: true
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: '#/definitions/MaterialList'
+        "400":
+          description: "Bad request"
+          schema:
+            $ref: "#/definitions/Error"
+        "500":
+          description: "Server error"
+          schema:
+            $ref: "#/definitions/Error"
+  /api/post/{id}/materials/add:
+    post:
+      tags:
+        - "post"
+      summary: "Add new materials"
+      operationId: "addNewMaterialsForPost"
+      produces:
+        - "application/json"
+      security:
+        - Bearer: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Post ID
+          type: integer
+          required: true
+        - in: "body"
+          name: "body"
+          description: "Materials list"
+          required: true
+          schema:
+            $ref: "#/definitions/MaterialList"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/Id"
+        "400":
+          description: "Bad request"
+          schema:
+            $ref: "#/definitions/Error"
+        "401":
+          description: "not valid token"
+        "403":
+          description: "Forbidden"
+          schema:
+            $ref: "#/definitions/Error"
+        "500":
+          description: "Server error"
+          schema:
+            $ref: "#/definitions/Error"
+  /api/post/{id}/materials/delete:
+    post:
+      tags:
+        - "post"
+      summary: "Delete posts material"
+      operationId: "deletePostMaterial"
+      security:
+        - Bearer: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Post ID
+          type: integer
+          required: true
+        - in: "body"
+          name: "body"
+          description: "Id"
+          required: true
+          schema:
+            $ref: "#/definitions/Id"
+      responses:
+        "200":
+          description: "successful operation"
+        "400":
+          description: "Bad request"
+          schema:
+            $ref: "#/definitions/Error"
+        "401":
+          description: "not valid token"
+        "403":
+          description: "Forbidden"
+          schema:
+            $ref: "#/definitions/Error"
+        "500":
+          description: "Server error"
+          schema:
+            $ref: "#/definitions/Error"
+
+  /api/post/{id}/participants:
+    get:
+      tags:
+        - "post"
+      summary: "Get post participants"
+      operationId: "getPostParticipants"
+      security:
+        - Bearer: [ ]
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: Post ID
+          type: integer
+          required: true
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: '#/definitions/UserList'
+        "400":
+          description: "Bad request"
+          schema:
+            $ref: "#/definitions/Error"
+        "403":
+          description: "Forbidden"
+          schema:
+            $ref: "#/definitions/Error"
+        "500":
+          description: "Server error"
+          schema:
+            $ref: "#/definitions/Error"
+
+  /api/auth/registration:
+    post:
+      tags:
+        - "auth"
+      summary: "Create user"
+      description: "This can only be done by the logged in user."
+      operationId: "registerUser"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "Created user object"
+          required: true
+          schema:
+            $ref: "#/definitions/User"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/Token"
+        "400":
+          description: "Bad request"
+          schema:
+            $ref: "#/definitions/Error"
+        "500":
+          description: "Server error"
+          schema:
+            $ref: "#/definitions/Error"
+  /api/auth/login:
+    post:
+      tags:
+        - "auth"
+      summary: "Logs user into the system"
+      description: "This can login user"
+      operationId: "loginUser"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "loginInfo"
+          in: "body"
+          description: "The user info for login"
+          required: true
+          schema:
+            $ref: "#/definitions/Login"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/Token"
+        "400":
+          description: "Bad request"
+          schema:
+            $ref: "#/definitions/Error"
+        "401":
+          description: Not valid token
+        "500":
+          description: "Server error"
+          schema:
+            $ref: "#/definitions/Error"
+  /api/auth/logout:
+    post:
+      tags:
+        - "auth"
+      summary: "Logs out current logged in user session"
+      description: ""
+      operationId: "logoutUser"
+      produces:
+        - "application/json"
+      security:
+        - Bearer: [ ]
+      responses:
+        default:
+          description: "successful operation"
+  /api/auth/is_auth:
+    get:
+      tags:
+        - auth
+      operationId: isAuth
+      security:
+        - Bearer: [ ]
+      responses:
+        "200":
+          description: "successful operation"
+        "401":
+          description: "not valid token"
+        "400":
+          description: "bad request"
+  /api/auth/send_reset_link:
+    post:
+      tags:
+        - auth
+      operationId: sendResetLink
+      parameters:
+        - in: "body"
+          name: "email"
+          schema:
+            $ref: "#/definitions/Email"
+      responses:
+        "200":
+          description: "successful operation"
+        "400":
+          description: "User not found"
+          schema:
+            $ref: "#/definitions/Error"
+        "500":
+          description: "Server error"
+          schema:
+            $ref: "#/definitions/Error"
+  /api/auth/check_token:
+    post:
+      tags:
+        - auth
+      operationId: checkResetToken
+      parameters:
+        - in: "body"
+          name: "token"
+          schema:
+            $ref: "#/definitions/ResetToken"
+      responses:
+        "200":
+          description: "successful operation"
+        "400":
+          description: "User not found"
+          schema:
+            $ref: "#/definitions/Error"
+  /api/auth/update_password:
+    post:
+      tags:
+        - auth
+      operationId: updatePassword
+      parameters:
+        - in: "body"
+          name: "body"
+          schema:
+            $ref: "#/definitions/UpdatePassword"
+      responses:
+        "200":
+          description: "successful operation"
+        "400":
+          description: "User not found"
+          schema:
+            $ref: "#/definitions/Error"
+        "500":
+          description: "Server error"
+          schema:
+            $ref: "#/definitions/Error"
+
+  /api/user/info:
+    get:
+      tags:
+        - "user"
+      summary: "Get user info"
+      description: ""
+      operationId: "getUserInfo"
+      produces:
+        - "application/json"
+      security:
+        - Bearer: [ ]
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/User"
+        "400":
+          description: "Bad request"
+          schema:
+            $ref: "#/definitions/Error"
+        "401":
+          description: "not valid token"
+          schema:
+            $ref: "#/definitions/Error"
+        "404":
+          description: "User not found"
+          schema:
+            $ref: "#/definitions/Error"
+        "500":
+          description: "Server error"
+          schema:
+            $ref: "#/definitions/Error"
+  /api/user/info/update:
+    post:
+      tags:
+        - user
+      summary: "Update user info"
+      description: ""
+      operationId: "updateUserInfo"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "Update user object"
+          required: true
+          schema:
+            $ref: "#/definitions/User"
+      security:
+        - Bearer: [ ]
+      responses:
+        "200":
+          description: "successful operation"
+        "400":
+          description: "Bad request"
+          schema:
+            $ref: "#/definitions/Error"
+        "401":
+          description: "not valid token"
+          schema:
+            $ref: "#/definitions/Error"
+        "404":
+          description: "User not found"
+          schema:
+            $ref: "#/definitions/Error"
+        "500":
+          description: "Server error"
+          schema:
+            $ref: "#/definitions/Error"
+  /api/user/posts:
+    get:
+      tags:
+        - "user"
+      summary: "Get user posts"
+      description: ""
+      operationId: "getUserPosts"
+      parameters:
+        - in: query
+          name: byTime
+          type: string
+          enum: [ all, new, old ]
+      produces:
+        - "application/json"
+      security:
+        - Bearer: [ ]
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/PostList"
+        "400":
+          description: "Bad request"
+          schema:
+            $ref: "#/definitions/Error"
+        "401":
+          description: "not valid token"
+          schema:
+            $ref: "#/definitions/Error"
+        "500":
+          description: "Server error"
+          schema:
+            $ref: "#/definitions/Error"
+  /api/user/posts/add:
+    post:
+      tags:
+        - "user"
+      summary: "Add post in favorite"
+      operationId: "userPostsAdd"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "Created user object"
+          required: true
+          schema:
+            $ref: "#/definitions/Id"
+      security:
+        - Bearer: [ ]
+      responses:
+        "200":
+          description: "successful operation"
+        "400":
+          description: "Bad request"
+          schema:
+            $ref: "#/definitions/Error"
+        "401":
+          description: "not valid token"
+          schema:
+            $ref: "#/definitions/Error"
+        "500":
+          description: "Server error"
+          schema:
+            $ref: "#/definitions/Error"
+  /api/user/posts/delete:
+    post:
+      tags:
+        - "user"
+      summary: "Delete post from favorite"
+      operationId: "userPostsDelete"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/Id"
+      security:
+        - Bearer: [ ]
+      responses:
+        "200":
+          description: "successful operation"
+        "400":
+          description: "Bad request"
+          schema:
+            $ref: "#/definitions/Error"
+        "401":
+          description: "not valid token"
+          schema:
+            $ref: "#/definitions/Error"
+        "500":
+          description: "Server error"
+          schema:
+            $ref: "#/definitions/Error"
+  /api/user/posts/own:
+    get:
+      tags:
+        - "user"
+      summary: "Get posts created by user"
+      operationId: "getUserCreatedPosts"
+      produces:
+        - "application/json"
+      security:
+        - Bearer: [ ]
+      parameters:
+        - in: query
+          name: byTime
+          type: string
+          enum: [ all, new, old ]
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/PostList"
+        "400":
+          description: "Bad request"
+          schema:
+            $ref: "#/definitions/Error"
+        "401":
+          description: "not valid token"
+          schema:
+            $ref: "#/definitions/Error"
+        "500":
+          description: "Server error"
+          schema:
+            $ref: "#/definitions/Error"
+  /api/tools/feedback:
+    post:
+      tags:
+        - "tools"
+      summary: "Send feedback"
+      operationId: "sendFeedback"
+      parameters:
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/Feedback"
+      responses:
+        "200":
+          description: "successful operation"
+        "400":
+          description: "Bad request"
+          schema:
+            $ref: "#/definitions/Error"
+        "500":
+          description: "Server error"
+          schema:
+            $ref: "#/definitions/Error"
+definitions:
+  User:
+    type: "object"
+    properties:
+      data:
+        type: "object"
+        properties:
+          firstName:
+            type: "string"
+          lastName:
+            type: "string"
+          email:
+            type: "string"
+          password:
+            type: "string"
+          phone:
+            type: "string"
+          role:
+            type: "integer"
+            format: "int32"
+            description: "User Status"
+          userStatus:
+            type: string
+          age:
+            type: integer
+            minimum: 16
+            maximum: 100
+  UserList:
+    type: "object"
+    properties:
+      data:
+        type: "array"
+        items:
+          $ref: "#/definitions/User"
+  Login:
+    type: "object"
+    properties:
+      data:
+        type: "object"
+        properties:
+          login:
+            type: "string"
+          password:
+            type: "string"
+  Post:
+    type: "object"
+    properties:
+      data:
+        type: "object"
+        properties:
+          id:
+            type: "integer"
+          title:
+            type: "string"
+          body:
+            type: "string"
+          image:
+            type: "string"
+          date:
+            type: "string"
+            format: "date"
+          timeStart:
+            type: "string"
+          timeEnd:
+            type: "string"
+          place:
+            type: "string"
+          duration:
+            type: "string"
+          translationLink:
+            type: "string"
+          eventType:
+            type: "string"
+          price:
+            type: "string"
+          contacts:
+            type: "string"
+          contactPhone:
+            type: "string"
+          hashtag:
+            type: "object"
+            $ref: "#/definitions/List"
+          speakers:
+            type: "object"
+            $ref: "#/definitions/List"
+          companies:
+            type: "object"
+            $ref: "#/definitions/List"
+          socialMedia:
+            type: "object"
+            $ref: "#/definitions/List"
+          youtubeLink:
+            type: "string"
+          owner:
+            type: integer
+          memberCount:
+            type: integer
+  PostList:
+    type: "object"
+    properties:
+      data:
+        type: "array"
+        items:
+          $ref: "#/definitions/Post"
+  List:
+    type: "object"
+    properties:
+      data:
+        type: "array"
+        items:
+          type: "string"
+  Sort:
+    type: "object"
+    properties:
+      key:
+        type: "string"
+      order:
+        type: "string"
+        enum: [ asc, desc ]
+        description: >
+          Sort order:
+           * `asc` - Ascending, from A to Z
+           * `desc` - Descending, from Z to A
+  PostRequest:
+    type: "object"
+    properties:
+      data:
+        type: "object"
+        properties:
+          page:
+            type: "string"
+          sorting:
+            type: "array"
+            items:
+              $ref: "#/definitions/Sort"
+          limit:
+            type: "integer"
+          offset:
+            type: "integer"
+  Token:
+    type: "object"
+    properties:
+      data:
+        type: "object"
+        properties:
+          token:
+            type: "string"
+  Error:
+    type: "object"
+    properties:
+      data:
+        type: "object"
+        properties:
+          error:
+            type: string
+  Id:
+    type: "object"
+    properties:
+      value:
+        type: integer
+  Email:
+    type: object
+    properties:
+      value:
+        type: string
+  ResetToken:
+    type: object
+    properties:
+      value:
+        type: string
+  UpdatePassword:
+    type: object
+    properties:
+      password:
+        type: string
+      token:
+        type: string
+  Feedback:
+    type: object
+    properties:
+      email:
+        type: string
+      text:
+        type: string
+  Material:
+    type: "object"
+    properties:
+      data:
+        type: "object"
+        properties:
+          id:
+            type: "integer"
+          postID:
+            type: "integer"
+          title:
+            type: "string"
+          link:
+            type: "string"
+          file:
+            description: "Link for upload file"
+            type: "string"
+          text:
+            description: Text field
+            type: string
+  MaterialList:
+    type: "object"
+    properties:
+      data:
+        type: "array"
+        items:
+          $ref: "#/definitions/Material"
+  Bool:
+    type: object
+    properties:
+      data:
+        type: boolean
+  Link:
+    type: object
+    properties:
+      data:
+        type: string
